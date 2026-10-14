@@ -1,0 +1,6 @@
+{
+  "name": "Pulseras Artesanales",
+  "description": "Tienda de pulseras artesanales con catálogo interactivo, personalizador, carrito, pasarelas de pago internacionales y base de datos de compras.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,231 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with authentication and contact preferences.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The unique Firebase Auth UID of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the user."
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Profile picture URL."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the user profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was last modified."
+        }
+      },
+      "required": ["userId", "email", "createdAt", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase order for bracelets and custom jewelry.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique order identifier."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Owner user UID who placed the order."
+        },
+        "itemsCount": {
+          "type": "integer",
+          "description": "Total quantity of bracelets ordered."
+        },
+        "subtotal": {
+          "type": "number",
+          "description": "Subtotal amount before shipping and discounts."
+        },
+        "shippingCost": {
+          "type": "number",
+          "description": "International shipping cost."
+        },
+        "total": {
+          "type": "number",
+          "description": "Total charged amount."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code (USD, EUR, MXN, GBP)."
+        },
+        "paymentMethod": {
+          "type": "string",
+          "description": "Payment gateway used (stripe_card, paypal, google_pay)."
+        },
+        "paymentStatus": {
+          "type": "string",
+          "description": "Status of payment (paid, pending, refunded)."
+        },
+        "orderStatus": {
+          "type": "string",
+          "description": "Fulfillment status (recibido, en_taller, enviado, entregado)."
+        },
+        "trackingNumber": {
+          "type": "string",
+          "description": "Courier tracking code."
+        },
+        "shippingName": {
+          "type": "string",
+          "description": "Recipient full name."
+        },
+        "shippingAddress": {
+          "type": "string",
+          "description": "Street shipping address."
+        },
+        "shippingCountry": {
+          "type": "string",
+          "description": "Destination country."
+        },
+        "shippingCity": {
+          "type": "string",
+          "description": "Destination city."
+        },
+        "shippingZip": {
+          "type": "string",
+          "description": "Postal or ZIP code."
+        },
+        "shippingPhone": {
+          "type": "string",
+          "description": "Contact phone number for courier."
+        },
+        "itemsSummary": {
+          "type": "string",
+          "description": "Summary description of bracelet items."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of order placement."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of last update."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "itemsCount",
+        "subtotal",
+        "shippingCost",
+        "total",
+        "currency",
+        "paymentMethod",
+        "paymentStatus",
+        "orderStatus",
+        "shippingName",
+        "shippingAddress",
+        "shippingCountry",
+        "shippingCity",
+        "shippingZip",
+        "shippingPhone",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CustomDesign": {
+      "title": "CustomDesign",
+      "description": "User custom configured artisan bracelet design.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique design identifier."
+        },
+        "userId": {
+          "type": "string",
+          "description": "User UID who customized the design."
+        },
+        "title": {
+          "type": "string",
+          "description": "Name given to the custom bracelet."
+        },
+        "baseMaterial": {
+          "type": "string",
+          "description": "Base weave or material (macrame, volcanic, leather, miyuki, minimalist)."
+        },
+        "stoneType": {
+          "type": "string",
+          "description": "Main crystal or charm selected."
+        },
+        "cordColor": {
+          "type": "string",
+          "description": "Color of cord or string."
+        },
+        "wristSizeCm": {
+          "type": "number",
+          "description": "Wrist circumference in centimeters."
+        },
+        "engravingText": {
+          "type": "string",
+          "description": "Custom text engraved on plaque if any."
+        },
+        "claspType": {
+          "type": "string",
+          "description": "Type of clasp or closure."
+        },
+        "estimatedPrice": {
+          "type": "number",
+          "description": "Estimated price in USD."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when design was saved."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of last modification."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "title",
+        "baseMaterial",
+        "stoneType",
+        "cordColor",
+        "wristSizeCm",
+        "claspType",
+        "estimatedPrice",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Root user profile document."
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Global orders collection where customer purchases are directly visible and manageable."
+    },
+    "/users/{userId}/custom_designs/{designId}": {
+      "schema": { "$ref": "#/entities/CustomDesign" },
+      "description": "Customized bracelet configurations created by the user."
+    }
+  }
+}

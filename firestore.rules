@@ -1,0 +1,97 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Global Safety Net: Default-deny all operations
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Global Helper Functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Admin authorization: Exclusive admin control granted ONLY to the owner's account (pekanexus32@gmail.com)
+    function isAdmin() {
+      return isSignedIn() &&
+             request.auth.token.email != null &&
+             request.auth.token.email.lower() == 'pekanexus32@gmail.com';
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // 3. Products Collection (Catalog)
+    // Anyone can read catalog products; ONLY pekanexus32@gmail.com can modify, create, or delete them!
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin() && isValidId(productId);
+    }
+
+    // 4. Global Orders Collection
+    match /orders/{orderId} {
+      // Admin can read all orders; customers can read their own orders
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()) && isValidId(orderId);
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Authenticated customers can create orders for themselves
+      allow create: if isSignedIn() && isValidId(orderId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().id == orderId &&
+                       incoming().subtotal is number && incoming().subtotal >= 0 &&
+                       incoming().total is number && incoming().total >= 0;
+
+      // ONLY the admin (pekanexus32@gmail.com) can update order status or tracking details
+      allow update: if isAdmin() && isValidId(orderId);
+
+      // ONLY the admin can delete orders from database
+      allow delete: if isAdmin() && isValidId(orderId);
+    }
+
+    // 5. User Profiles and Subcollections
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isOwner(userId);
+
+      allow create, update: if isOwner(userId) && isValidId(userId) &&
+                               incoming().userId == request.auth.uid;
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Orders Subcollection (mirror for multi-tenant isolation)
+      match /orders/{orderId} {
+        allow get, list: if isOwner(userId) && isValidId(orderId);
+        allow create: if isOwner(userId) && isValidId(orderId) &&
+                         incoming().userId == request.auth.uid &&
+                         incoming().id == orderId;
+        allow update, delete: if isAdmin() && isValidId(orderId);
+      }
+
+      // Custom Designs Subcollection
+      match /custom_designs/{designId} {
+        allow get, list: if isOwner(userId) && isValidId(designId);
+        allow create, update, delete: if isOwner(userId) && isValidId(designId);
+      }
+    }
+
+    // 6. Store Settings (Discounts, announcements, currency rates)
+    // Anyone can read; ONLY admin can modify
+    match /store_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+  }
+}
